@@ -14,6 +14,24 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:postgres@postgres
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+@app.errorhandler(400)
+def handle_bad_request(error):
+    response = jsonify({'error': 'Bad request'})
+    response.status_code = 400
+    return response
+
+@app.errorhandler(405)
+def handle_method_not_allowed(error):
+    response = jsonify({'error': 'Method not allowed'})
+    response.status_code = 405
+    return response
+
+@app.errorhandler(409)
+def handle_conflict(error):
+    response = jsonify({'error': 'Conflict'})
+    response.status_code = 409
+    return response
+
 add_type('audio/wav', '.wav') # В линукс контейнере выдает "audio/x-wav" и проверка возвращает False, потому добавил MIME тип вручную.
 
 class User(db.Model):
@@ -42,7 +60,7 @@ def index():
         user: User = User.query.filter_by(username = username).first()
         
         if user:
-            return {'message': 'User with that username already exists'}, 409
+            abort(409)
         
         # Create user
         user: User = User(username=username)

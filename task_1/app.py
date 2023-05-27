@@ -11,6 +11,12 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:postgres@postgres
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+@app.errorhandler(400)
+def handle_bad_request(error):
+    response = jsonify({'error': 'Bad request'})
+    response.status_code = 400
+    return response
+
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     question_text = db.Column(db.String)
